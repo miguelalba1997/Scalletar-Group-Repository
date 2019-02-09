@@ -1,0 +1,51 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+
+int main(){
+    std::vector<int> lattice;
+    int row, col;
+    std::cout << "Rows: ";
+    std::cin >> row;
+    std::cout << "Cols: ";
+    std::cin >> col;
+
+    //creates the lattice
+    for (int i = 0 ; i < row * col; i++){
+        lattice.push_back(0);
+    }
+
+    //prints the first empty lattice
+    for (int i = 0 ; i < row; i++){
+        for(int j = 0; j < col; j++){
+            int k = i * col + j;
+            std::cout << lattice[k];
+        }
+        std::cout << std::endl;
+    }
+    std::cout << std:: endl;
+
+    //prints all the possible combinations in one big chunk
+    for (int j = (row * col) - 1; j >= 0; j--){
+        lattice[j] = 1;
+        for (int i = 0 ; i < row; i++){
+            for(int j = 0; j < col; j++){
+                int k = i * col + j;
+                std::cout << lattice[k];
+            }
+            std::cout << std::endl;
+        }
+        std::cout << std::endl;
+        while(std::next_permutation(lattice.begin(), lattice.end())){
+            for (int i = 0 ; i < row; i++){
+                for(int j = 0; j < col; j++){
+                    int k = i * col + j;
+                    std::cout << lattice[k];
+                }
+                std::cout << std::endl;
+            }
+            std::cout << std::endl;
+        }
+    }
+    return 0;
+}
