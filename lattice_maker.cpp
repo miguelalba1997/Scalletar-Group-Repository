@@ -12,8 +12,8 @@ int main(){
     std::vector<std::vector<int> > storedLattice;
     std::vector<int> energylist;
     int row, col, start, end, T;
-    float partition_func, free_energy;
-    float K_b = 1.38 * pow(10,-23);
+    double partition_func, free_energy;
+    double K_b = 1.38 * pow(10,-23);
     std::cout << "Rows: ";
     std::cin >> row;
     std::cout << "Cols: ";
@@ -24,7 +24,7 @@ int main(){
     std::cin >> T;
     std::cout << "end";
     std::cin >> end;  
-
+    std::cout << K_b;
     //creates the first empty lattice
     for (int i = 0 ; i < row * col; i++){
         lattice.push_back(0);
@@ -92,7 +92,7 @@ int main(){
     }
     //calculate the partition function for a given state
     std::for_each(energylist.begin(), energylist.end(), [&] (int n) {
-   	 partition_func += exp(n/(T*K_b));
+   	 partition_func += exp(-n/(T*K_b));
     });
     free_energy = K_b * T * log(partition_func);  //calculate the helmhotlz free energy
     //prints all the possible combinations
