@@ -4,27 +4,31 @@
 
 int main(){
 
-    double sumEnergy, energy, J;
+    double totalEnergy, energy, J =1, T=1, z = 0, aveE = 0;
     double Emin = 9999., Emax = -9999.;
     std::vector<int> lattice;
     std::vector<std::vector<int> > storedLattice;
-    int row, col;
+    std::vector <double> energyStates;
+    int row, col, state;
+
+    //Input for the Lattice
     std::cout << "Rows: ";
     std::cin >> row;
     std::cout << "Cols: ";
     std::cin >> col;
-    std::cout << "J: ";
-    std::cin >> J;
+
 
     //creates the first empty lattice
     for (int i = 0 ; i < row * col; i++){
-        lattice.push_back(0);
+        lattice.push_back(1);
     }
+
+    //saves the default
     storedLattice.push_back(lattice);
 
     //creates all the possible combinations in one big chunk
-    for (int j = (row * col) - 1; j >= 0; j--){
-        lattice[j] = 1;
+    for (int j = 0; j <= (row * col) - 1; j++){
+        lattice[j] = -1;
         storedLattice.push_back(lattice);
         while(std::next_permutation(lattice.begin(), lattice.end())){
             storedLattice.push_back(lattice);
@@ -33,40 +37,45 @@ int main(){
 
     for(int i = 0; i < storedLattice.size(); i++){
         int counter = 0;
-        sumEnergy = 0;
+        totalEnergy = 0;
+
         //for energy in rows
         do {
-            sumEnergy += (storedLattice[i][counter * col] * storedLattice[i][counter * col + (col-1)]);
+            totalEnergy += (storedLattice[i][counter * col] * storedLattice[i][counter * col + (col-1)]);
+            //std::cout << "in " << i << "latiice, row: " << counter << "the energytotalEnergy << "\t" ;
             for (int j = 0; j < col - 1; j++) {
                 int k1, k2;
                 k1 = counter * col + j;
                 k2 = k1 + 1;
                 energy = storedLattice[i][k1] * storedLattice[i][k2];
-                sumEnergy += energy;
+                totalEnergy += energy;
             }
             counter++;
         }while ( counter < row);
 
         counter = 0;
+
         //for energy in cols
         do {
-            sumEnergy += (storedLattice[i][counter * row] * storedLattice[i][counter * row + (row-1)]);
+            totalEnergy += (storedLattice[i][counter * row] * storedLattice[i][counter * row + (row-1)]);
             for (int j = 0; j < row - 1; j++) {
                 int k1, k2;
                 k1 = counter * col + j;
                 k2 = k1 + 1;
                 energy = storedLattice[i][k1] * storedLattice[i][k2];
-                sumEnergy += energy;
+                totalEnergy += energy;
             }
             counter++;
         }while ( counter < col);
+        energyStates.push_back(totalEnergy);
+        totalEnergy = J * totalEnergy;
 
-        sumEnergy = J * sumEnergy;
-        if (sumEnergy > Emax) {
-            Emax=sumEnergy;
+        //energyStates.push_back(aveE);
+        if (totalEnergy > Emax) {
+            Emax=totalEnergy;
         }
-        if (sumEnergy < Emin) {
-            Emin=sumEnergy;
+        if (totalEnergy < Emin) {
+            Emin=totalEnergy;
         }
     }
 
@@ -74,8 +83,6 @@ int main(){
     std::cout << "Emax is: " << Emax << std::endl;
     std::cout << "Emin is: " << Emin << std::endl;
 
-
-    /*//prints all the possible combinations
     for (int l = 0; l < storedLattice.size(); l++){
         for (int i = 0 ; i < row; i++){
             for(int j = 0; j < col; j++){
@@ -85,6 +92,7 @@ int main(){
             std::cout << std::endl;
         }
         std::cout << std::endl;
-    }*/
+    }
+
     return 0;
 }
