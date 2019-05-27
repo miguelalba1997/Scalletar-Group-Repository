@@ -1,15 +1,21 @@
 #include <iostream>
 #include <vector>
+#include <math.h>
 #include <algorithm>
+#include <iomanip>
+
 
 int main(){
 
-    double totalEnergy, energy, J =1, T=1, z = 0, aveE = 0;
+    double totalEnergy, energy, J =1.0, q = 0.0, z=0, T = 20;
     double Emin = 9999., Emax = -9999.;
     std::vector<int> lattice;
     std::vector<std::vector<int> > storedLattice;
     std::vector <double> energyStates;
-    int row, col, state;
+    int row = 4, col = 4;
+
+    std::cout << " Temperature: ";
+    std::cin >> T;
 
     //Input for the Lattice
     std::cout << "Rows: ";
@@ -20,79 +26,112 @@ int main(){
 
     //creates the first empty lattice
     for (int i = 0 ; i < row * col; i++){
-        lattice.push_back(1);
+        lattice.push_back(0);
     }
 
     //saves the default
     storedLattice.push_back(lattice);
 
     //creates all the possible combinations in one big chunk
-    for (int j = 0; j <= (row * col) - 1; j++){
-        lattice[j] = -1;
+    for (int j = (row*col) - 1; j >= 0; j--){
+        lattice[j] = 1;
         storedLattice.push_back(lattice);
         while(std::next_permutation(lattice.begin(), lattice.end())){
             storedLattice.push_back(lattice);
         }
     }
 
-    for(int i = 0; i < storedLattice.size(); i++){
+    for(int i = 0; i < storedLattice.size(); i++) {
         int counter = 0;
         totalEnergy = 0;
 
         //for energy in rows
         do {
-            totalEnergy += (storedLattice[i][counter * col] * storedLattice[i][counter * col + (col-1)]);
-            //std::cout << "in " << i << "latiice, row: " << counter << "the energytotalEnergy << "\t" ;
+            if ((storedLattice[i][counter * col] == 0 && storedLattice[i][(counter * col) + (col - 1)] == 1) ||
+                (storedLattice[i][counter * col] == 1 && storedLattice[i][(counter * col) + (col - 1)] == 0)) {
+                totalEnergy += 1;
+            } else {
+                totalEnergy -= 1;
+            }
             for (int j = 0; j < col - 1; j++) {
                 int k1, k2;
                 k1 = counter * col + j;
                 k2 = k1 + 1;
-                energy = storedLattice[i][k1] * storedLattice[i][k2];
-                totalEnergy += energy;
+                if ((storedLattice[i][k1] == 0 && storedLattice[i][k2] == 1) ||
+                    (storedLattice[i][k1] == 1 && storedLattice[i][k2] == 0)) {
+                    totalEnergy += 1;
+                } else {
+                    totalEnergy -= 1;
+                }
             }
             counter++;
-        }while ( counter < row);
+        } while (counter < row);
 
         counter = 0;
 
         //for energy in cols
         do {
-            totalEnergy += (storedLattice[i][counter * row] * storedLattice[i][counter * row + (row-1)]);
-            for (int j = 0; j < row - 1; j++) {
+            if ((storedLattice[i][counter] == 0 && storedLattice[i][(col * (row - 1)) + counter] == 1) ||
+                (storedLattice[i][counter] == 1 && storedLattice[i][(col * (row - 1)) + counter] == 0)) {
+                totalEnergy += 1;
+            } else {
+                totalEnergy -= 1;
+            }
+            for (int j = 0; j < row; j++) {
                 int k1, k2;
                 k1 = counter * col + j;
-                k2 = k1 + 1;
-                energy = storedLattice[i][k1] * storedLattice[i][k2];
-                totalEnergy += energy;
+                k2 = k1 + col;
+                if ((storedLattice[i][k1] == 0 && storedLattice[i][k2] == 1) ||
+                    (storedLattice[i][k1] == 1 && storedLattice[i][k2] == 0)) {
+                    totalEnergy += 1;
+                } else {
+                    totalEnergy -= 1;
+                }
             }
             counter++;
-        }while ( counter < col);
+            if (counter == 3) {
+                if ((storedLattice[i][counter] == 0 && storedLattice[i][(col * (row - 1)) + counter] == 1) ||
+                    (storedLattice[i][counter] == 1 && storedLattice[i][(col * (row - 1)) + counter] == 0)) {
+                    totalEnergy += 1;
+                } else {
+                    totalEnergy -= 1;
+                }
+            }
+        } while (counter < col - 1);
         energyStates.push_back(totalEnergy);
         totalEnergy = J * totalEnergy;
 
-        //energyStates.push_back(aveE);
+        z += exp(-totalEnergy / T);               //z  = e^(-E(state)/T)
+        q += totalEnergy * exp(-totalEnergy / T);   // q = sumof(
         if (totalEnergy > Emax) {
-            Emax=totalEnergy;
+            Emax = totalEnergy;
         }
         if (totalEnergy < Emin) {
-            Emin=totalEnergy;
+            Emin = totalEnergy;
         }
     }
-
     std::cout << "total number of states is: " << storedLattice.size() << std::endl;
     std::cout << "Emax is: " << Emax << std::endl;
-    std::cout << "Emin is: " << Emin << std::endl;
+    std::cout << "Emin is: " << Emin << std::endl << std::endl;
+    std::cout << "Average Energy: " << std::setprecision(9) << (q/z)/(row*col) << std::endl;
 
-    for (int l = 0; l < storedLattice.size(); l++){
+
+    /*for (int l = 0; l < storedLattice.size(); l++){
         for (int i = 0 ; i < row; i++){
             for(int j = 0; j < col; j++){
                 int k = i * col + j;
-                std::cout << storedLattice[l][k];
+                if (storedLattice[l][k] == 1){
+                    std::cout << " + ";
+                } else {
+                    std::cout << " - ";
+                }
             }
             std::cout << std::endl;
         }
+        std::cout << "Energy: " << energyStates[l];
         std::cout << std::endl;
-    }
+    }*/
 
     return 0;
 }
+
